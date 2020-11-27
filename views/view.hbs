@@ -1,0 +1,191 @@
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>CRUD Node.js and SQLite</title>
+  <link href="/assets/css/bootstrap.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+  <div class="container">
+    <h2>Movies List</h2>
+    <button class="btn btn-success" data-toggle="modal" data-target="#myModalAdd">Add New</button>
+    <table class="table table-striped" id="mytable">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Tag</th>
+          <th>Relevance</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each results}}
+        <tr>
+          <td>{{ title }}</td>
+          <td>{{ tag }}</td>
+          <td>{{ relevance }}</td>
+          <td>
+            <a href="javascript:void(0);" class="btn btn-sm btn-info edit" data-title="{{ title }}" data-tag="{{ tag }}"
+              data-movie_id="{{ movieId }}" data-tag_id="{{ tagId }}" data-relevance="{{ relevance }}">Edit</a>
+            <a href="javascript:void(0);" class="btn btn-sm btn-danger delete" data-tag_id="{{ tagId }}"
+              data-movie_id="{{ movieId }}">Delete</a>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Add New Modal-->
+  <form action="/save" method="post">
+    <div class="modal fade" id="myModalAdd" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Add New Record</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div style="margin-bottom: 20px;" class="form-inline">
+              <input style="width: 30%; margin-right:12px" type="text" name="title" id="title" class="form-control"
+                placeholder="Title" required>
+              <select class="form-control col-sm-8" name="movie_id" class="movie_id" id="title_expaned" required>
+                <option>Default select</option>
+              </select>
+            </div>
+            <div style="margin-bottom: 20px;" class="form-inline">
+              <input style="width: 30%; margin-right:12px" type="text" name="tag" id="tag" class="form-control"
+                placeholder="Tag" required>
+              <select class="form-control col-sm-8" name="tag_id" class="tag_id" id="tag_expaned" required>
+                <option>Default select</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <input type="number" name="relevance" class="form-control" placeholder="Relevance" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <!-- Edit Modal-->
+  <form action="/update" method="post">
+    <div class="modal fade" id="EditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Edit Record</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <input type="text" name="relevance" class="form-control" placeholder="Relevance" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <input type="hidden" name="tag_id" class="tag_id" required>
+            <input type="hidden" name="movie_id" class="movie_id" required>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Update</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <!-- Delete Modal-->
+  <form id="add-row-form" action="/delete" method="post">
+    <div class="modal fade" id="DeleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="myModalLabel">Delete Record</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                aria-hidden="true">&times;</span></button>
+          </div>
+          <div class="modal-body">
+            <strong>Are You Sure To Delete This Data?</strong>
+          </div>
+          <div class="modal-footer">
+            <input type="hidden" name="tag_id" class="form-control tag_id2" required>
+            <input type="hidden" name="movie_id" class="movie_id2" required>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-success">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <script src="/assets/js/jquery-3.3.1.js"></script>
+  <script src="/assets/js/bootstrap.js"></script>
+  <script>
+    $(document).ready(function () {
+      //showing data to modal for edit record
+      $('#mytable').on('click', '.edit', function () {
+        var tag_id = $(this).data('tag_id');
+        var movie_id = $(this).data('movie_id');
+        var relevance = $(this).data('relevance');
+        $('#EditModal').modal('show');
+        $('.title').val(title);
+        $('.relevance').val(relevance);
+        $('.tag_id').val(tag_id);
+        $('.movie_id').val(movie_id);
+      });
+      //showing modal for delete record
+      $('#mytable').on('click', '.delete', function () {
+        var tag_id = $(this).data('tag_id');
+        var movie_id = $(this).data('movie_id');
+        $('#DeleteModal').modal('show');
+        $('.tag_id2').val(tag_id);
+        $('.movie_id2').val(movie_id);
+      });
+
+      //search
+      $(function () {
+        $('input#title').on('keyup', function (e) {
+          var parameters = { search: $(this).val(), table: "movies" };
+          $.get('/searching', parameters, function (data) {
+            console.log(data);
+            var result = "";
+            if (data !== "") {
+              data.forEach(dt => result += `<option value="${dt.movieId}" id="result">${dt.title}</option>`);
+            }
+            console.log(result);
+            $('#title_expaned').html(result);
+          });
+        });
+      });
+
+      $(function () {
+        $('input#tag').on('keyup', function (e) {
+          var parameters = { search: $(this).val(), table: "tags" };
+          $.get('/searching', parameters, function (data) {
+            console.log(data);
+            var result = "";
+            if (data !== "") {
+              data.forEach(dt => result += `<option value="${dt.tagId}" id="result">${dt.tag}</option>`);
+            }
+            console.log(result);
+            $('#tag_expaned').html(result);
+          });
+        });
+      });
+    });
+  </script>
+</body>
+
+</html>
